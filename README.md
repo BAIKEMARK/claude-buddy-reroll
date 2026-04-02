@@ -2,7 +2,7 @@
 
 自定义 Claude Code `/buddy` 宠物的物种、稀有度、眼睛、帽子和属性。基于社区逆向分析。
 
-> **选择困难？** 打开 [图鉴页面](https://github.com/BAIKEMARK/claude-buddy-reroll/blob/main/index.html) 浏览所有宠物。
+> **选择困难？** 打开 [图鉴页面](https://baikemark.github.io/claude-buddy-reroll/) 浏览所有宠物。
 
 ## 安装
 
@@ -83,6 +83,6 @@ bun buddy-reroll.js --species duck --rarity legendary --shiny
 
 ## 参考
 
-- [图鉴页面（浏览器预览所有宠物）](https://github.com/BAIKEMARK/claude-buddy-reroll/blob/main/index.html)
+- [图鉴页面](https://baikemark.github.io/claude-buddy-reroll/)
 - [博客文章：Reverse Engineering Claude Code's 2026 April Fools](https://variety.is/posts/claude-code-buddies/)
 - [Linux.do 帖子：Claude Code /buddy 宠物系统逆向分析](https://linux.do/t/topic/1871870)
