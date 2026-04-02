@@ -476,28 +476,28 @@
 
   <!-- Species -->
   <div class="panel active" id="panel-species">
-    <div class="section-title">18 个物种</div>
+    <div class="section-title">物种（18种）</div>
     <div class="section-sub">每种有独特 ASCII 艺术和 3 帧动画。纯外观属性，不影响数值。</div>
     <div class="species-grid" id="species-grid"></div>
   </div>
 
   <!-- Eyes -->
   <div class="panel" id="panel-eyes">
-    <div class="section-title">6 种眼睛</div>
+    <div class="section-title">眼睛（6种）</div>
     <div class="section-sub">通过 {E} 占位符替换到精灵模板中。以鸭子为例。</div>
     <div class="eyes-row" id="eyes-row"></div>
   </div>
 
   <!-- Hats -->
   <div class="panel" id="panel-hats">
-    <div class="section-title">8 种帽子</div>
+    <div class="section-title">帽子（8种）</div>
     <div class="section-sub">普通稀有度固定为 none，其他稀有度从全套中随机。以猫+✦为例。</div>
     <div class="hats-row" id="hats-row"></div>
   </div>
 
   <!-- Rarity -->
   <div class="panel" id="panel-rarity">
-    <div class="section-title">5 个稀有度</div>
+    <div class="section-title">稀有度（5种）</div>
     <div class="section-sub">稀有度决定属性下限和是否有帽子。以猫+✦+crown 为例。</div>
     <div class="rarity-row" id="rarity-row"></div>
     <div class="stats-box" id="stats-box"></div>
@@ -533,98 +533,98 @@
 <script>
 const E = '{E}';
 const SPRITES = {
-  duck: { desc: '最初的伙伴。尾巴微微摇摆。', frames: [
+  duck: { desc: '最初的伙伴。尾巴微微摇摆。', label: '鸭子', frames: [
     [`            `,`    __      `,`  <(${E} )___  `,`   (  ._>   `,`    \`--´    `],
     [`            `,`    __      `,`  <(${E} )___  `,`   (  ._>   `,`    \`--´~   `],
     [`            `,`    __      `,`  <(${E} )___  `,`   (  .__>  `,`    \`--´    `]]},
-  goose: { desc: '长脖子，危险的感觉。', frames: [
+  goose: { desc: '长脖子，危险的感觉。', label: '鹅', frames: [
     [`            `,`     (${E}>    `,`     ||     `,`   _(__)_   `,`    ^^^^    `],
     [`            `,`    (${E}>     `,`     ||     `,`   _(__)_   `,`    ^^^^    `],
     [`            `,`     (${E}>>   `,`     ||     `,`   _(__)_   `,`    ^^^^    `]]},
-  blob: { desc: '会呼吸（膨胀/收缩）。', frames: [
+  blob: { desc: '会呼吸（膨胀/收缩）。', label: '史莱姆', frames: [
     [`            `,`   .----.   `,`  ( ${E}  ${E} )  `,`  (      )  `,`   \`----´   `],
     [`            `,`  .------.  `,` (  ${E}  ${E}  ) `,` (        ) `,`  \`------´  `],
     [`            `,`    .--.    `,`   (${E}  ${E})   `,`   (    )   `,`    \`--´    `]]},
-  cat: { desc: 'ω 嘴巴。第二帧甩尾巴。', frames: [
+  cat: { desc: 'ω 嘴巴。第二帧甩尾巴。', label: '猫', frames: [
     [`            `,`   /\\_/\\    `,`  ( ${E}   ${E})  `,`  (  ω  )   `,`  (")_(")   `],
     [`            `,`   /\\_/\\    `,`  ( ${E}   ${E})  `,`  (  ω  )   `,`  (")_(")~  `],
     [`            `,`   /\\-/\\    `,`  ( ${E}   ${E})  `,`  (  ω  )   `,`  (")_(")   `]]},
-  dragon: { desc: '第三帧冒烟。', frames: [
+  dragon: { desc: '第三帧冒烟。', label: '龙', frames: [
     [`            `,`  /^\\  /^\\  `,` <  ${E}  ${E}  > `,` (   ~~   ) `,`  \`-vvvv-´  `],
     [`            `,`  /^\\  /^\\  `,` <  ${E}  ${E}  > `,` (        ) `,`  \`-vvvv-´  `],
     [`   ~    ~   `,`  /^\\  /^\\  `,` <  ${E}  ${E}  > `,` (   ~~   ) `,`  \`-vvvv-´  `]]},
-  octopus: { desc: '触手交替。第三帧吐墨汁。', frames: [
+  octopus: { desc: '触手交替。第三帧吐墨汁。', label: '章鱼', frames: [
     [`            `,`   .----.   `,`  ( ${E}  ${E} )  `,`  (______)  `,`  /\\/\\/\\/\\  `],
     [`            `,`   .----.   `,`  ( ${E}  ${E} )  `,`  (______)  `,`  \\/\\/\\/\\/  `],
     [`     o      `,`   .----.   `,`  ( ${E}  ${E} )  `,`  (______)  `,`  /\\/\\/\\/\\  `]]},
-  owl: { desc: '第三帧眨眼。脚会移动。', frames: [
+  owl: { desc: '第三帧眨眼。脚会移动。', label: '猫头鹰', frames: [
     [`            `,`   /\\  /\\   `,`  ((${E})(${E}))  `,`  (  ><  )  `,`   \`----´   `],
     [`            `,`   /\\  /\\   `,`  ((${E})(${E}))  `,`  (  ><  )  `,`   .----.   `],
     [`            `,`   /\\  /\\   `,`  ((${E})(-))  `,`  (  ><  )  `,`   \`----´   `]]},
-  penguin: { desc: '鳍交替。第三帧跳起来。', frames: [
+  penguin: { desc: '鳍交替。第三帧跳起来。', label: '企鹅', frames: [
     [`            `,`  .---.     `,`  (${E}>${E})     `,` /(   )\\    `,`  \`---´     `],
     [`            `,`  .---.     `,`  (${E}>${E})     `,` |(   )|    `,`  \`---´     `],
     [`  .---.     `,`  (${E}>${E})     `,` /(   )\\    `,`  \`---´     `,`   ~ ~      `]]},
-  turtle: { desc: '第三帧壳纹理变化。', frames: [
+  turtle: { desc: '第三帧壳纹理变化。', label: '乌龟', frames: [
     [`            `,`   _,--._   `,`  ( ${E}  ${E} )  `,` /[______]\\ `,`  \`\`    \`\`  `],
     [`            `,`   _,--._   `,`  ( ${E}  ${E} )  `,` /[______]\\ `,`   \`\`  \`\`   `],
     [`            `,`   _,--._   `,`  ( ${E}  ${E} )  `,` /[======]\\ `,`  \`\`    \`\`  `]]},
-  snail: { desc: '眼柄摇摆。单眼物种。', frames: [
+  snail: { desc: '眼柄摇摆。单眼物种。', label: '蜗牛', frames: [
     [`            `,` ${E}    .--.  `,`  \\  ( @ )  `,`   \\_\`--´   `,`  ~~~~~~~   `],
     [`            `,`  ${E}   .--.  `,`  |  ( @ )  `,`   \\_\`--´   `,`  ~~~~~~~   `],
     [`            `,` ${E}    .--.  `,`  \\  ( @  ) `,`   \\_\`--´   `,`   ~~~~~~   `]]},
-  ghost: { desc: '底部边缘波动。第三帧飘起来。', frames: [
+  ghost: { desc: '底部边缘波动。第三帧飘起来。', label: '幽灵', frames: [
     [`            `,`   .----.   `,`  / ${E}  ${E} \\  `,`  |      |  `,`  ~\`\`~\`\`~\`~  `],
     [`            `,`   .----.   `,`  / ${E}  ${E} \\  `,`  |      |  `,`  \`~\`~~\`~\`  `],
     [`    ~  ~    `,`   .----.   `,`  / ${E}  ${E} \\  `,`  |      |  `,`  ~~\`~~\`~~  `]]},
-  axolotl: { desc: '鳃向不同方向摆动。', frames: [
+  axolotl: { desc: '鳃向不同方向摆动。', label: '美西螈', frames: [
     [`            `,`}~(______)~{`,`}~(${E} .. ${E})~{`,`  ( .--. )  `,`  (_/  \\_)  `],
     [`            `,`~}(______){~`,`~}(${E} .. ${E}){~`,`  ( .--. )  `,`  (_/  \\_)  `],
     [`            `,`}~(______)~{`,`}~(${E} .. ${E})~{`,`  (  --  )  `,`  ~_/  \\_~  `]]},
-  capybara: { desc: '平静。偶尔抽动鼻孔。', frames: [
+  capybara: { desc: '平静。偶尔抽动鼻孔。', label: '水豚', frames: [
     [`            `,`  n______n  `,` ( ${E}    ${E} ) `,` (   oo   ) `,`  \`------´  `],
     [`            `,`  n______n  `,` ( ${E}    ${E} ) `,` (   Oo   ) `,`  \`------´  `],
     [`    ~  ~    `,`  u______n  `,` ( ${E}    ${E} ) `,` (   oo   ) `,`  \`------´  `]]},
-  cactus: { desc: '手臂在帧之间上下移动。', frames: [
+  cactus: { desc: '手臂在帧之间上下移动。', label: '仙人掌', frames: [
     [`            `,` n  ____  n `,` | |${E}  ${E}| | `,` |_|    |_| `,`   |    |   `],
     [`            `,`    ____    `,` n |${E}  ${E}| n `,` |_|    |_| `,`   |    |   `],
     [` n        n `,` |  ____  | `,` | |${E}  ${E}| | `,` |_|    |_| `,`   |    |   `]]},
-  robot: { desc: '天线闪烁。嘴巴图案变化。', frames: [
+  robot: { desc: '天线闪烁。嘴巴图案变化。', label: '机器人', frames: [
     [`            `,`   .[||].   `,`  [ ${E}  ${E} ]  `,`  [ ==== ]  `,`  \`------´  `],
     [`            `,`   .[||].   `,`  [ ${E}  ${E} ]  `,`  [ -==- ]  `,`  \`------´  `],
     [`     *      `,`   .[||].   `,`  [ ${E}  ${E} ]  `,`  [ ==== ]  `,`  \`------´  `]]},
-  rabbit: { desc: '第二帧耳朵下垂。鼻子抽动。', frames: [
+  rabbit: { desc: '第二帧耳朵下垂。鼻子抽动。', label: '兔子', frames: [
     [`            `,`   (\\__/)   `,`  ( ${E}  ${E} )  `,` =(  ..  )= `,`  (")__(")  `],
     [`            `,`   (|__/)   `,`  ( ${E}  ${E} )  `,` =(  ..  )= `,`  (")__(")  `],
     [`            `,`   (\\__/)   `,`  ( ${E}  ${E} )  `,` =( .  . )= `,`  (")__(")  `]]},
-  mushroom: { desc: '帽子斑点移动。第三帧散孢子。', frames: [
+  mushroom: { desc: '帽子斑点移动。第三帧散孢子。', label: '蘑菇', frames: [
     [`            `,` .-o-OO-o-. `,`(__________)`,`   |${E}  ${E}|   `,`   |____|   `],
     [`            `,` .-O-oo-O-. `,`(__________)`,`   |${E}  ${E}|   `,`   |____|   `],
     [`   . o  .   `,` .-o-OO-o-. `,`(__________)`,`   |${E}  ${E}|   `,`   |____|   `]]},
-  chonk: { desc: '第二帧甩耳朵。第三帧摇尾巴。', frames: [
+  chonk: { desc: '第二帧甩耳朵。第三帧摇尾巴。', label: '胖猫', frames: [
     [`            `,`  /\\    /\\  `,` ( ${E}    ${E} ) `,` (   ..   ) `,`  \`------´  `],
     [`            `,`  /\\    /|  `,` ( ${E}    ${E} ) `,` (   ..   ) `,`  \`------´  `],
     [`            `,`  /\\    /\\  `,` ( ${E}    ${E} ) `,` (   ..   ) `,`  \`------´~ `]]}
 };
 
 const HATS = {
-  none:      { art: '', desc: '普通稀有度固定为此。' },
-  crown:     { art: '   \\^^^/    ', desc: '王者风范。' },
-  tophat:    { art: '   [___]    ', desc: '经典优雅。' },
-  propeller: { art: '    -+-     ', desc: '俏皮。' },
-  halo:      { art: '   (   )    ', desc: '天使光环。' },
-  wizard:    { art: '    /^\\     ', desc: '魔法。' },
-  beanie:    { art: '   (___)    ', desc: '温暖。' },
-  tinyduck:  { art: '    ,>      ', desc: '头上蹲着一只鸭子。' }
+  none:      { art: '', desc: '普通稀有度固定为此。', label: '无' },
+  crown:     { art: '   \\^^^/    ', desc: '王者风范。', label: '皇冠' },
+  tophat:    { art: '   [___]    ', desc: '经典优雅。', label: '高礼帽' },
+  propeller: { art: '    -+-     ', desc: '俏皮。', label: '螺旋桨' },
+  halo:      { art: '   (   )    ', desc: '天使光环。', label: '光环' },
+  wizard:    { art: '    /^\\     ', desc: '魔法。', label: '巫师帽' },
+  beanie:    { art: '   (___)    ', desc: '温暖。', label: '毛线帽' },
+  tinyduck:  { art: '    ,>      ', desc: '头上蹲着一只鸭子。', label: '小鸭子' }
 };
 
 const EYES = [
-  { c: '·', desc: '默认。简约，平静。' },
-  { c: '✦', desc: '闪亮。兴奋。' },
-  { c: '×', desc: '晕眩或调皮。' },
-  { c: '◉', desc: '大眼睛。警觉。' },
-  { c: '@', desc: '数字化。机械感。' },
-  { c: '°', desc: '惊讶。空洞凝视。' }
+  { c: '·', desc: '简约，平静。', label: '默认' },
+  { c: '✦', desc: '闪亮。兴奋。', label: '星星' },
+  { c: '×', desc: '晕眩或调皮。', label: '晕眩' },
+  { c: '◉', desc: '警觉。', label: '大眼' },
+  { c: '@', desc: '机械感。', label: '机械' },
+  { c: '°', desc: '空洞凝视。', label: '惊讶' }
 ];
 
 const RARITIES = [
@@ -635,7 +635,7 @@ const RARITIES = [
   { key: 'legendary', stars: '★★★★★', label: '传奇', floor: 50, color: '#f0883e', weight: '1%' }
 ];
 
-const STATS = ['DEBUGGING','PATIENCE','CHAOS','WISDOM','SNARK'];
+const STATS = ['调试','耐心','混乱','智慧','毒舌'];
 
 function sprite(name, eye, hat, f=0) {
   const s = SPRITES[name].frames[f].map(l => l.replaceAll('{E}', eye));
@@ -649,7 +649,7 @@ function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>
 const sg = document.getElementById('species-grid');
 for (const [n, d] of Object.entries(SPRITES)) {
   sg.innerHTML += `<div class="sp-card" onclick="this.classList.toggle('selected')">
-    <div class="sp-name">${n}</div>
+    <div class="sp-name">${d.label || n}</div>
     <div class="sp-desc">${d.desc}</div>
     <div class="sp-sprite">
       <pre class="frame">${esc(sprite(n,'·','none',0))}</pre>
@@ -672,7 +672,7 @@ setInterval(() => {
 const er = document.getElementById('eyes-row');
 for (const e of EYES) {
   er.innerHTML += `<div class="eye-card" onclick="this.classList.toggle('selected')">
-    <span class="eye-char">${e.c}</span>
+    <span class="eye-char">${e.c} ${e.label}</span>
     <div class="eye-desc">${e.desc}</div>
     <div class="eye-sprite"><pre>${esc(sprite('duck',e.c,'none',0))}</pre></div>
   </div>`;
@@ -683,7 +683,7 @@ const hr = document.getElementById('hats-row');
 for (const [n, d] of Object.entries(HATS)) {
   const s = sprite('cat','✦',n,0);
   hr.innerHTML += `<div class="hat-card" onclick="this.classList.toggle('selected')">
-    <div class="hat-name">${n}</div>
+    <div class="hat-name">${d.label || n}</div>
     <div class="hat-desc">${d.desc}</div>
     <div class="hat-sprite"><pre>${esc(s)}</pre></div>
   </div>`;
@@ -705,11 +705,11 @@ for (const r of RARITIES) {
 const sb = document.getElementById('stats-box');
 let sh = '<div class="stats-title">属性说明</div>';
 const statDesc = {
-  DEBUGGING: { desc: '调试能力', color: '#58a6ff' },
-  PATIENCE: { desc: '耐心', color: '#3fb950' },
-  CHAOS: { desc: '混乱度', color: '#f85149' },
-  WISDOM: { desc: '智慧', color: '#bc8cff' },
-  SNARK: { desc: '毒舌', color: '#f0883e' }
+  调试: { desc: '调试能力', color: '#58a6ff' },
+  耐心: { desc: '耐心', color: '#3fb950' },
+  混乱: { desc: '混乱度', color: '#f85149' },
+  智慧: { desc: '智慧', color: '#bc8cff' },
+  毒舌: { desc: '毒舌', color: '#f0883e' }
 };
 for (const s of STATS) {
   const v = Math.floor(Math.random()*50)+50;
@@ -729,16 +729,16 @@ const bHt = document.getElementById('b-ht');
 const bOut = document.getElementById('b-out');
 const bTags = document.getElementById('b-tags');
 
-for (const n of Object.keys(SPRITES)) bSp.innerHTML += `<option value="${n}">${n}</option>`;
-for (const e of EYES) bEy.innerHTML += `<option value="${e.c}">${e.c} — ${e.desc}</option>`;
-for (const [n, d] of Object.entries(HATS)) bHt.innerHTML += `<option value="${n}">${n}</option>`;
+for (const n of Object.keys(SPRITES)) bSp.innerHTML += `<option value="${n}">${SPRITES[n].label || n}</option>`;
+for (const e of EYES) bEy.innerHTML += `<option value="${e.c}">${e.label} ${e.c} — ${e.desc}</option>`;
+for (const [n, d] of Object.entries(HATS)) bHt.innerHTML += `<option value="${n}">${HATS[n].label || n}</option>`;
 
 function updateBuilder() {
   bOut.textContent = sprite(bSp.value, bEy.value, bHt.value, 0);
   bTags.innerHTML = `
-    <span class="builder-tag">${bSp.value}</span>
+    <span class="builder-tag">${SPRITES[bSp.value].label || bSp.value}</span>
     <span class="builder-tag">${bEy.value}</span>
-    <span class="builder-tag">${bHt.value}</span>
+    <span class="builder-tag">${HATS[bHt.value].label || bHt.value}</span>
   `;
 }
 bSp.addEventListener('change', updateBuilder);
