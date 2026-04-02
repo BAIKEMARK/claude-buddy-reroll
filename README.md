@@ -1,6 +1,19 @@
-# Claude Code Buddy Reroll
+# Claude Code 宠物刷取工具 (Buddy Reroll)
 
-刷 Claude Code `/buddy` 宠物的脚本，基于社区逆向分析。
+自定义 Claude Code `/buddy` 宠物的物种、稀有度、眼睛、帽子和属性。基于社区逆向分析。
+
+> **选择困难？** 打开 [图鉴页面](https://github.com/BAIKEMARK/claude-buddy-reroll/blob/main/index.html) 浏览所有宠物。
+
+## 安装
+
+```bash
+# 一键安装（推荐）
+npx skills add BAIKEMARK/claude-buddy-reroll -g
+```
+
+安装后，在 Claude Code 里说"刷宠物"、"换宠物"、"看看有什么宠物"等即可触发。
+
+也可以手动安装：将仓库根目录下的 `SKILL.md` + `references/` + `scripts/` 复制到 `~/.claude/skills/buddy-reroll/`。
 
 ## 关键：根据安装方式选择运行时
 
@@ -8,86 +21,68 @@ Claude Code 的宠物由 `hash(userID + SALT)` 确定性生成，但哈希函数
 
 | 安装方式 | 运行时 | 哈希函数 | 运行命令 |
 |---------|--------|---------|---------|
-| `npm install -g @anthropic-ai/claude-code` | Node.js | **FNV-1a** | `node buddy-reroll.js` |
-| 官方 native 安装 | Bun | **Bun.hash** | `bun buddy-reroll.js` |
+| `npm install` | Node.js | **FNV-1a** | `node buddy-reroll.js` |
+| 官方 native | Bun | **Bun.hash** | `bun buddy-reroll.js` |
 
-**用错了运行时，搜出来的 UID 写进去宠物会完全不对！**
+**用错运行时搜出来的 UID 写进去宠物会完全不对！**
 
-### 如何确认自己的安装方式
+### 确认安装方式
 
 ```bash
-# 查看安装方式
 cat ~/.claude.json | grep installMethod
 ```
 
-- `"installMethod": "global"` → npm 安装 → 用 `node`
-- `"installMethod": "native"` → 官方安装 → 用 `bun`
+- `"global"` → npm → 用 `node`
+- `"native"` → 官方 → 用 `bun`
 
-## 使用方法
+## 使用方式
 
-### 查看当前宠物
+### 通过 Skill（安装后）
 
-```bash
-# npm 用户
-node buddy-reroll.js --check <你的userID或accountUuid>
+直接在 Claude Code 对话中用自然语言：
 
-# native 用户
-bun buddy-reroll.js --check <你的userID或accountUuid>
-```
+- "我想刷一只传奇猫，皇冠，星星眼"
+- "帮我换只龙，要闪光的"
+- "看看当前是什么宠物"
+- "刷宠物" → 会展示所有可选组合让你选
 
-userID 位置：
-- npm 用户：`~/.claude.json` 中的 `userID` 字段
-- OAuth 登录用户：`~/.claude.json` 中的 `oauthAccount.accountUuid` 字段（如果手动设置了的话）
-
-### 搜索指定宠物
+### 通过脚本（手动运行）
 
 ```bash
-# npm 用户
+# 查看当前宠物
+node buddy-reroll.js --check <你的userID>
+
+# 搜索指定宠物
 node buddy-reroll.js --species cat --rarity legendary --eye '✦' --hat crown
 
-# native 用户
-bun buddy-reroll.js --species cat --rarity legendary --eye '✦' --hat crown
-```
-
-### 写入配置
-
-1. 编辑 `~/.claude.json`
-2. 将 `userID` 或 `oauthAccount.accountUuid` 替换为搜到的 uid
-3. 删除 `companion` 字段（让系统重新生成名字和性格）
-4. 重启 Claude Code，输入 `/buddy` 领养
-
-## 全部选项
-
-```
---species <name>       物种: duck, goose, blob, cat, dragon, octopus, owl,
-                       penguin, turtle, snail, ghost, axolotl, capybara,
-                       cactus, robot, rabbit, mushroom, chonk
---rarity <name>        最低稀有度: common, uncommon, rare, epic, legendary
---eye <char>           眼睛样式: · ✦ × ◉ @ °
---hat <name>           帽子: none, crown, tophat, propeller, halo, wizard,
-                       beanie, tinyduck
---shiny                要求闪光版（1% 概率，搜索时间会更长）
---min-stats [value]    要求所有属性 >= 指定值（默认 90）
---max <number>         最大迭代次数（默认 5000万）
---count <number>       搜索结果数量（默认 3）
---check <uid>          查看指定 uid 对应的宠物
-```
-
-## 示例
-
-```bash
-# 刷传奇鸭子（native 用户）
+# native 用户用 bun
 bun buddy-reroll.js --species duck --rarity legendary --shiny
-
-# 刷高属性龙（npm 用户）
-node buddy-reroll.js --species dragon --min-stats 80
-
-# 随机看看当前是什么宠物
-node buddy-reroll.js --check 0bdbf7581277af73e4bcbc281099a77700feaaa99e8ade02cd1c9e2816507c4c
 ```
+
+## 可选内容
+
+| 参数 | 说明 |
+|------|------|
+| `--species <名称>` | 物种：duck(鸭子), cat(猫), dragon(龙), octopus(章鱼), owl(猫头鹰), penguin(企鹅), turtle(乌龟), snail(蜗牛), ghost(幽灵), axolotl(美西螈), capybara(水豚), cactus(仙人掌), robot(机器人), rabbit(兔子), mushroom(蘑菇), chonk(胖猫) |
+| `--rarity <等级>` | 最低稀有度：common(普通), uncommon(非凡), rare(稀有), epic(史诗), legendary(传奇) |
+| `--eye <样式>` | 眼睛：·(默认) ✦(星星) ×(晕眩) ◉(大眼) @(机械) °(惊讶) |
+| `--hat <帽子>` | 帽子：none(无), crown(皇冠), tophat(高礼帽), propeller(螺旋桨), halo(光环), wizard(巫师帽), beanie(毛线帽), tinyduck(小鸭子) |
+| `--shiny` | 闪光版（1% 概率，搜索更久） |
+| `--min-stats <值>` | 要求所有属性 ≥ 指定值（默认 90） |
+| `--max <次数>` | 最大搜索次数（默认 5000 万） |
+| `--count <数量>` | 搜索结果数量（默认 3） |
+| `--check <uid>` | 查看指定 uid 对应的宠物 |
+
+## 修改原理
+
+只改 `~/.claude.json` 一个文件：
+
+1. 将搜索到的 uid 写入 `userID` 或 `oauthAccount.accountUuid`
+2. 删除或自定义 `companion` 块（名字和性格）
+3. 重启 Claude Code，输入 `/buddy` 领养
 
 ## 参考
 
+- [图鉴页面（浏览器预览所有宠物）](https://github.com/BAIKEMARK/claude-buddy-reroll/blob/main/index.html)
 - [博客文章：Reverse Engineering Claude Code's 2026 April Fools](https://variety.is/posts/claude-code-buddies/)
 - [Linux.do 帖子：Claude Code /buddy 宠物系统逆向分析](https://linux.do/t/topic/1871870)
-- SALT: `friend-2026-401`（来源：Claude Code v2.1.89 源码泄露）
