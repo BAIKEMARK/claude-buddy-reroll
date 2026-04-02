@@ -4,516 +4,762 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Claude Code Buddy 图鉴</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #1a1b26;
-    --card: #24283b;
-    --border: #3b4261;
-    --text: #c0caf5;
-    --text2: #a9b1d6;
-    --text3: #565f89;
-    --accent: #7aa2f7;
+    --bg: #0d1117;
+    --bg2: #161b22;
+    --bg3: #1c2333;
+    --border: #30363d;
+    --text: #e6edf3;
+    --text2: #8b949e;
+    --text3: #484f58;
+    --common: #8b949e;
+    --uncommon: #3fb950;
+    --rare: #58a6ff;
+    --epic: #bc8cff;
+    --legendary: #f0883e;
+    --accent: #f0883e;
+    --glow-legendary: rgba(240, 136, 62, 0.15);
+    --glow-epic: rgba(188, 140, 255, 0.1);
+    --glow-rare: rgba(88, 166, 255, 0.1);
+    --glow-uncommon: rgba(63, 185, 80, 0.1);
+    --font: 'JetBrains Mono', 'Space Mono', monospace;
   }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
   body {
-    font-family: -apple-system, 'SF Mono', 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, monospace;
+    font-family: var(--font);
     background: var(--bg);
     color: var(--text);
     line-height: 1.6;
-    padding: 2rem;
+    min-height: 100vh;
+    overflow-x: hidden;
   }
-  h1 { text-align: center; font-size: 1.8rem; margin-bottom: 0.3rem; }
-  .subtitle { text-align: center; color: var(--text3); margin-bottom: 2rem; font-size: 0.9rem; }
-  h2 {
-    font-size: 1.2rem;
-    margin: 2.5rem 0 1rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid var(--border);
-    color: var(--accent);
+
+  /* Subtle scanline overlay */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.03) 2px,
+      rgba(0,0,0,0.03) 4px
+    );
+    z-index: 9999;
   }
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 1rem;
-    margin-bottom: 1rem;
+
+  .container { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
+  /* Header */
+  .header {
+    text-align: center;
+    padding: 3rem 0 2rem;
+    position: relative;
   }
-  .card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 1rem;
-    transition: border-color 0.2s;
+  .header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
   }
-  .card:hover { border-color: var(--accent); }
-  .card-label {
-    font-size: 0.75rem;
-    color: var(--text3);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: 0.5rem;
+  .title {
+    font-family: 'Space Mono', monospace;
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, var(--text) 0%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 0.4rem;
   }
-  .card-name {
-    font-size: 1rem;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-  }
-  .card-desc {
-    font-size: 0.8rem;
+  .subtitle {
     color: var(--text2);
-    margin-bottom: 0.75rem;
+    font-size: 0.8rem;
+    font-weight: 300;
   }
-  pre {
-    font-family: 'SF Mono', 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, monospace;
-    font-size: 0.65rem;
-    line-height: 1.2;
+
+  /* Navigation */
+  nav {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin: 2rem 0 2.5rem;
+    flex-wrap: wrap;
+  }
+  .nav-btn {
+    padding: 0.5rem 1.2rem;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    background: transparent;
+    color: var(--text2);
+    font-family: var(--font);
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+  .nav-btn:hover { border-color: var(--text3); color: var(--text); }
+  .nav-btn.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(240, 136, 62, 0.08);
+  }
+
+  /* Sections */
+  .panel { display: none; animation: fadeIn 0.3s ease; }
+  .panel.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  .section-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 0.3rem;
     color: var(--text);
+  }
+  .section-sub {
+    color: var(--text3);
+    font-size: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+
+  /* Species Grid */
+  .species-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.75rem;
+  }
+  .sp-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .sp-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(240,136,62,0.04), transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .sp-card:hover { border-color: var(--text3); transform: translateY(-2px); }
+  .sp-card:hover::before { opacity: 1; }
+  .sp-card.selected { border-color: var(--accent); box-shadow: 0 0 20px rgba(240,136,62,0.1); }
+  .sp-name {
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 0.15rem;
+    color: var(--text);
+  }
+  .sp-desc {
+    font-size: 0.68rem;
+    color: var(--text3);
+    margin-bottom: 0.6rem;
+  }
+  .sp-sprite {
+    position: relative;
+  }
+  .sp-sprite pre {
+    font-family: var(--font);
+    font-size: 0.6rem;
+    line-height: 1.15;
+    color: var(--text2);
     background: var(--bg);
     border-radius: 6px;
-    padding: 0.6rem;
-    overflow-x: auto;
+    padding: 0.5rem;
+    white-space: pre;
+    overflow: hidden;
+    position: relative;
+  }
+  .sp-sprite .frame { display: block; }
+  .sp-sprite .frame.hidden { display: none; }
+  @keyframes blink {
+    0%, 45% { opacity: 1; }
+    50%, 95% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+
+  /* Eyes Row */
+  .eyes-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 0.75rem;
+  }
+  .eye-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem;
+    text-align: center;
+    transition: all 0.3s;
+    cursor: pointer;
+  }
+  .eye-card:hover { border-color: var(--text3); }
+  .eye-card.selected { border-color: var(--accent); }
+  .eye-char {
+    font-size: 1.5rem;
+    margin-bottom: 0.3rem;
+    display: block;
+    color: var(--text);
+  }
+  .eye-desc { font-size: 0.68rem; color: var(--text3); }
+  .eye-sprite pre {
+    font-family: var(--font);
+    font-size: 0.58rem;
+    line-height: 1.15;
+    color: var(--text2);
+    background: var(--bg);
+    border-radius: 6px;
+    padding: 0.5rem;
+    margin-top: 0.5rem;
+    white-space: pre;
+    text-align: left;
+    display: inline-block;
+  }
+
+  /* Hats Row */
+  .hats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 0.75rem;
+  }
+  .hat-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem;
+    transition: all 0.3s;
+    cursor: pointer;
+  }
+  .hat-card:hover { border-color: var(--text3); }
+  .hat-card.selected { border-color: var(--accent); }
+  .hat-card .hat-none-note { font-size: 0.65rem; color: var(--text3); font-style: italic; }
+  .hat-name { font-size: 0.8rem; font-weight: 600; margin-bottom: 0.15rem; }
+  .hat-desc { font-size: 0.68rem; color: var(--text3); margin-bottom: 0.5rem; }
+  .hat-sprite pre {
+    font-family: var(--font);
+    font-size: 0.58rem;
+    line-height: 1.15;
+    color: var(--text2);
+    background: var(--bg);
+    border-radius: 6px;
+    padding: 0.5rem;
     white-space: pre;
   }
-  /* Rarity colors */
-  .rarity-common { color: #9aa5ce; }
-  .rarity-uncommon { color: #73daca; }
-  .rarity-rare { color: #7dcfff; }
-  .rarity-epic { color: #bb9af7; }
-  .rarity-legendary { color: #e0af68; }
-  .rarity-common .card { border-color: #3b4261; }
-  .rarity-uncommon .card { border-color: #2a4f4b; }
-  .rarity-rare .card { border-color: #2a3f4f; }
-  .rarity-epic .card { border-color: #3a2f4f; }
-  .rarity-legendary .card { border-color: #4f3f1a; }
-  .legendary .card { border-color: #4f3f1a; }
-  /* Tabs */
-  .tabs {
+
+  /* Rarity */
+  .rarity-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.75rem;
+  }
+  @media (max-width: 768px) { .rarity-row { grid-template-columns: repeat(2, 1fr); } }
+  .rar-card {
+    border-radius: 10px;
+    padding: 1.2rem;
+    text-align: center;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .rar-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0.06;
+    border-radius: 10px;
+  }
+  .rar-common { background: var(--bg2); border: 1px solid var(--border); }
+  .rar-common::before { background: var(--common); }
+  .rar-uncommon { background: var(--bg2); border: 1px solid rgba(63,185,80,0.3); }
+  .rar-uncommon::before { background: var(--uncommon); }
+  .rar-rare { background: var(--bg2); border: 1px solid rgba(88,166,255,0.3); }
+  .rar-rare::before { background: var(--rare); }
+  .rar-epic { background: var(--bg2); border: 1px solid rgba(188,140,255,0.3); }
+  .rar-epic::before { background: var(--epic); opacity: 0.08; }
+  .rar-legendary {
+    background: var(--bg2);
+    border: 1px solid rgba(240,136,62,0.4);
+    box-shadow: 0 0 30px rgba(240,136,62,0.06);
+  }
+  .rar-legendary::before { background: var(--legendary); opacity: 0.1; }
+  .rar-stars { font-size: 0.9rem; margin-bottom: 0.3rem; letter-spacing: 0.05em; }
+  .rar-common .rar-stars { color: var(--common); }
+  .rar-uncommon .rar-stars { color: var(--uncommon); }
+  .rar-rare .rar-stars { color: var(--rare); }
+  .rar-epic .rar-stars { color: var(--epic); }
+  .rar-legendary .rar-stars { color: var(--legendary); }
+  .rar-label { font-size: 0.75rem; font-weight: 600; margin-bottom: 0.15rem; }
+  .rar-common .rar-label { color: var(--common); }
+  .rar-uncommon .rar-label { color: var(--uncommon); }
+  .rar-rare .rar-label { color: var(--rare); }
+  .rar-epic .rar-label { color: var(--epic); }
+  .rar-legendary .rar-label { color: var(--legendary); }
+  .rar-info { font-size: 0.65rem; color: var(--text3); margin-bottom: 0.6rem; }
+  .rar-sprite pre {
+    font-family: var(--font);
+    font-size: 0.55rem;
+    line-height: 1.15;
+    background: var(--bg);
+    border-radius: 6px;
+    padding: 0.5rem;
+    white-space: pre;
+    text-align: left;
+    display: inline-block;
+  }
+  .rar-common .rar-sprite pre { color: var(--common); }
+  .rar-uncommon .rar-sprite pre { color: var(--uncommon); }
+  .rar-rare .rar-sprite pre { color: var(--rare); }
+  .rar-epic .rar-sprite pre { color: var(--epic); }
+  .rar-legendary .rar-sprite pre { color: var(--legendary); }
+
+  /* Stats table */
+  .stats-box {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.2rem;
+    margin-top: 1.5rem;
+  }
+  .stats-title { font-size: 0.85rem; font-weight: 600; margin-bottom: 0.8rem; }
+  .stat-row {
     display: flex;
-    gap: 0.25rem;
-    margin-bottom: 1rem;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+  .stat-name { font-size: 0.7rem; color: var(--text3); width: 80px; text-align: right; }
+  .stat-bar-bg {
+    flex: 1;
+    height: 6px;
+    background: var(--bg);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .stat-bar {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.6s ease;
+  }
+
+  /* Builder */
+  .builder-area {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-top: 1rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .builder-area::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: conic-gradient(from 0deg, transparent, rgba(240,136,62,0.02), transparent, rgba(188,140,255,0.02), transparent);
+    animation: rotate 20s linear infinite;
+  }
+  @keyframes rotate { to { transform: rotate(360deg); } }
+  .builder-inner { position: relative; z-index: 1; }
+  .builder-controls {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    margin-bottom: 1.5rem;
     flex-wrap: wrap;
   }
-  .tab {
-    padding: 0.4rem 0.8rem;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.85rem;
-    color: var(--text2);
-    background: transparent;
-    border: 1px solid transparent;
-    transition: all 0.2s;
-  }
-  .tab:hover { color: var(--text); background: var(--card); }
-  .tab.active {
-    color: var(--accent);
-    background: var(--card);
-    border-color: var(--accent);
-  }
-  .section { display: none; }
-  .section.active { display: block; }
-  .note {
-    background: var(--card);
-    border-left: 3px solid var(--accent);
-    padding: 1rem;
-    margin: 1.5rem 0;
-    font-size: 0.85rem;
-    color: var(--text2);
-    border-radius: 0 8px 8px 0;
-  }
-  .note code {
-    background: var(--bg);
-    padding: 0.15rem 0.4rem;
-    border-radius: 4px;
-    font-size: 0.8rem;
-  }
-  .stats-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 1rem 0;
-  }
-  .stats-table th, .stats-table td {
-    padding: 0.5rem 0.75rem;
-    text-align: left;
-    border-bottom: 1px solid var(--border);
-    font-size: 0.85rem;
-  }
-  .stats-table th { color: var(--text3); font-weight: 500; }
-  .preview-area {
-    background: var(--card);
+  .builder-select {
+    padding: 0.5rem 0.8rem;
     border: 1px solid var(--border);
     border-radius: 8px;
-    padding: 1.5rem;
-    margin: 1.5rem 0;
-    text-align: center;
-  }
-  .preview-area pre {
-    font-size: 0.75rem;
-    display: inline-block;
-    text-align: left;
-    background: var(--bg);
-    border-radius: 8px;
-    padding: 1rem;
-    margin: 0 auto;
-  }
-  .controls {
-    display: flex;
-    gap: 0.5rem;
-    justify-content: center;
-    margin-bottom: 1rem;
-    flex-wrap: wrap;
-  }
-  .controls select, .controls button {
-    padding: 0.4rem 0.8rem;
-    border-radius: 6px;
-    font-size: 0.85rem;
-    font-family: inherit;
+    font-family: var(--font);
+    font-size: 0.78rem;
     background: var(--bg);
     color: var(--text);
-    border: 1px solid var(--border);
     cursor: pointer;
+    transition: border-color 0.2s;
+    min-width: 120px;
   }
-  .controls button:hover { border-color: var(--accent); color: var(--accent); }
+  .builder-select:hover { border-color: var(--text3); }
+  .builder-select:focus { outline: none; border-color: var(--accent); }
+  .builder-preview {
+    text-align: center;
+    padding: 1.5rem;
+    background: var(--bg);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    position: relative;
+  }
+  .builder-preview pre {
+    font-family: var(--font);
+    font-size: 0.8rem;
+    line-height: 1.2;
+    color: var(--legendary);
+    display: inline-block;
+    text-align: left;
+    padding: 1rem;
+  }
+  .builder-tag {
+    display: inline-block;
+    font-size: 0.65rem;
+    color: var(--text3);
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 0.15rem 0.6rem;
+    margin-top: 0.8rem;
+    margin-right: 0.3rem;
+  }
+  .builder-tag.leg { color: var(--legendary); border-color: rgba(240,136,62,0.3); }
+  .builder-tag.epi { color: var(--epic); border-color: rgba(188,140,255,0.3); }
+  .builder-tag.rar { color: var(--rare); border-color: rgba(88,166,255,0.3); }
+  .builder-tag.unc { color: var(--uncommon); border-color: rgba(63,185,80,0.3); }
+  .builder-tag.com { color: var(--common); border-color: rgba(139,148,158,0.3); }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.7rem;
+    color: var(--text3);
+  }
+  .footer a { color: var(--accent); text-decoration: none; }
+  .footer a:hover { text-decoration: underline; }
+
+  /* Responsive */
   @media (max-width: 600px) {
-    body { padding: 1rem; }
-    .grid { grid-template-columns: 1fr; }
+    .container { padding: 1rem; }
+    .title { font-size: 1.4rem; }
+    .species-grid { grid-template-columns: 1fr 1fr; }
+    .eyes-row { grid-template-columns: 1fr 1fr; }
+    .hats-row { grid-template-columns: 1fr 1fr; }
+    .builder-controls { flex-direction: column; align-items: stretch; }
   }
 </style>
 </head>
 <body>
 
-<h1>Claude Code Buddy 图鉴</h1>
-<p class="subtitle">所有物种、眼睛、帽子、稀有度一览 — 基于 v2.1.89 源码逆向</p>
-
-<div class="note">
-  <strong>提示：</strong>想刷到指定的宠物？查看 <a href="https://github.com/BAIKEMARK/claude-buddy-reroll" style="color:var(--accent)">GitHub 仓库</a> 获取脚本。
-  npm 安装用 <code>node</code>，native 安装用 <code>bun</code>，用错运行时结果会完全不对！
-</div>
-
-<!-- Tabs -->
-<div class="tabs" id="tabs">
-  <div class="tab active" data-section="species">物种</div>
-  <div class="tab" data-section="eyes">眼睛</div>
-  <div class="tab" data-section="hats">帽子</div>
-  <div class="tab" data-section="rarity">稀有度</div>
-  <div class="tab" data-section="builder">组合预览</div>
-</div>
-
-<!-- Species -->
-<div class="section active" id="section-species"></div>
-
-<!-- Eyes -->
-<div class="section" id="section-eyes"></div>
-
-<!-- Hats -->
-<div class="section" id="section-hats"></div>
-
-<!-- Rarity -->
-<div class="section" id="section-rarity"></div>
-
-<!-- Builder -->
-<div class="section" id="section-builder">
-  <h2>自由组合</h2>
-  <p style="color:var(--text2);margin-bottom:1rem;font-size:0.85rem;">选择物种、眼睛、帽子、稀有度，实时预览你的宠物</p>
-  <div class="controls">
-    <select id="b-species"></select>
-    <select id="b-eyes"></select>
-    <select id="b-hats"></select>
+<div class="container">
+  <div class="header">
+    <div class="title">BUDDY DEX</div>
+    <div class="subtitle">Claude Code /buddy 全图鉴 — 18 物种 / 6 眼睛 / 8 帽子 / 5 稀有度</div>
   </div>
-  <div class="preview-area">
-    <pre id="b-preview"></pre>
+
+  <nav>
+    <button class="nav-btn active" data-panel="species">物种</button>
+    <button class="nav-btn" data-panel="eyes">眼睛</button>
+    <button class="nav-btn" data-panel="hats">帽子</button>
+    <button class="nav-btn" data-panel="rarity">稀有度</button>
+    <button class="nav-btn" data-panel="builder">组合预览</button>
+  </nav>
+
+  <!-- Species -->
+  <div class="panel active" id="panel-species">
+    <div class="section-title">18 个物种</div>
+    <div class="section-sub">每种有独特 ASCII 艺术和 3 帧动画。纯外观属性，不影响数值。</div>
+    <div class="species-grid" id="species-grid"></div>
+  </div>
+
+  <!-- Eyes -->
+  <div class="panel" id="panel-eyes">
+    <div class="section-title">6 种眼睛</div>
+    <div class="section-sub">通过 {E} 占位符替换到精灵模板中。以鸭子为例。</div>
+    <div class="eyes-row" id="eyes-row"></div>
+  </div>
+
+  <!-- Hats -->
+  <div class="panel" id="panel-hats">
+    <div class="section-title">8 种帽子</div>
+    <div class="section-sub">普通稀有度固定为 none，其他稀有度从全套中随机。以猫+✦为例。</div>
+    <div class="hats-row" id="hats-row"></div>
+  </div>
+
+  <!-- Rarity -->
+  <div class="panel" id="panel-rarity">
+    <div class="section-title">5 个稀有度</div>
+    <div class="section-sub">稀有度决定属性下限和是否有帽子。以猫+✦+crown 为例。</div>
+    <div class="rarity-row" id="rarity-row"></div>
+    <div class="stats-box" id="stats-box"></div>
+  </div>
+
+  <!-- Builder -->
+  <div class="panel" id="panel-builder">
+    <div class="section-title">自由组合</div>
+    <div class="section-sub">选择物种、眼睛、帽子，实时预览你的宠物。</div>
+    <div class="builder-area">
+      <div class="builder-inner">
+        <div class="builder-controls">
+          <select class="builder-select" id="b-sp"></select>
+          <select class="builder-select" id="b-ey"></select>
+          <select class="builder-select" id="b-ht"></select>
+        </div>
+        <div class="builder-preview">
+          <pre id="b-out"></pre>
+          <div id="b-tags"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    基于 <a href="https://variety.is/posts/claude-code-buddies/" target="_blank">variety.is</a> 和
+    <a href="https://linux.do/t/topic/1871870" target="_blank">Linux.do</a> 逆向分析 ·
+    SALT: <code style="color:var(--accent)">friend-2026-401</code> ·
+    <a href="https://github.com/BAIKEMARK/claude-buddy-reroll" target="_blank">GitHub</a>
   </div>
 </div>
 
 <script>
-// Sprite data extracted from Claude Code source
 const E = '{E}';
 const SPRITES = {
-  duck: {
-    desc: '最初的伙伴。尾巴微微摇摆。',
-    frames: [
-      [`            `,`    __      `,`  <(${E} )___  `,`   (  ._>   `,`    \`--\´    `],
-      [`            `,`    __      `,`  <(${E} )___  `,`   (  ._>   `,`    \`--\´~   `],
-      [`            `,`    __      `,`  <(${E} )___  `,`   (  .__>  `,`    \`--\´    `]
-    ]
-  },
-  goose: {
-    desc: '长长的脖子，危险的感觉。',
-    frames: [
-      [`            `,`     (${E}>    `,`     ||     `,`   _(__)_   `,`    ^^^^    `],
-      [`            `,`    (${E}>     `,`     ||     `,`   _(__)_   `,`    ^^^^    `],
-      [`            `,`     (${E}>>   `,`     ||     `,`   _(__)_   `,`    ^^^^    `]
-    ]
-  },
-  blob: {
-    desc: '会呼吸（膨胀/收缩）。',
-    frames: [
-      [`            `,`   .----.   `,`  ( ${E}  ${E} )  `,`  (      )  `,`   \`----\´   `],
-      [`            `,`  .------.  `,` (  ${E}  ${E}  ) `,` (        ) `,`  \`------\´  `],
-      [`            `,`    .--.    `,`   (${E}  ${E})   `,`   (    )   `,`    \`--\´    `]
-    ]
-  },
-  cat: {
-    desc: 'ω 嘴巴。第二帧甩尾巴。',
-    frames: [
-      [`            `,`   /\\_/\\    `,`  ( ${E}   ${E})  `,`  (  ω  )   `,`  (")_(")   `],
-      [`            `,`   /\\_/\\    `,`  ( ${E}   ${E})  `,`  (  ω  )   `,`  (")_(")~  `],
-      [`            `,`   /\\-/\\    `,`  ( ${E}   ${E})  `,`  (  ω  )   `,`  (")_(")   `]
-    ]
-  },
-  dragon: {
-    desc: '第三帧冒烟。',
-    frames: [
-      [`            `,`  /^\\  /^\\  `,` <  ${E}  ${E}  > `,` (   ~~   ) `,`  \`-vvvv-\´  `],
-      [`            `,`  /^\\  /^\\  `,` <  ${E}  ${E}  > `,` (        ) `,`  \`-vvvv-\´  `],
-      [`   ~    ~   `,`  /^\\  /^\\  `,` <  ${E}  ${E}  > `,` (   ~~   ) `,`  \`-vvvv-\´  `]
-    ]
-  },
-  octopus: {
-    desc: '触手交替。第三帧吐墨汁泡泡。',
-    frames: [
-      [`            `,`   .----.   `,`  ( ${E}  ${E} )  `,`  (______)  `,`  /\\/\\/\\/\\  `],
-      [`            `,`   .----.   `,`  ( ${E}  ${E} )  `,`  (______)  `,`  \\/\\/\\/\\/  `],
-      [`     o      `,`   .----.   `,`  ( ${E}  ${E} )  `,`  (______)  `,`  /\\/\\/\\/\\  `]
-    ]
-  },
-  owl: {
-    desc: '第三帧眨眼。脚会移动。',
-    frames: [
-      [`            `,`   /\\  /\\   `,`  ((${E})(${E}))  `,`  (  ><  )  `,`   \`----\´   `],
-      [`            `,`   /\\  /\\   `,`  ((${E})(${E}))  `,`  (  ><  )  `,`   .----.   `],
-      [`            `,`   /\\  /\\   `,`  ((${E})(-))  `,`  (  ><  )  `,`   \`----\´   `]
-    ]
-  },
-  penguin: {
-    desc: '鳍交替。第三帧跳起来。',
-    frames: [
-      [`            `,`  .---.     `,`  (${E}>${E})     `,` /(   )\\    `,`  \`---\´     `],
-      [`            `,`  .---.     `,`  (${E}>${E})     `,` |(   )|    `,`  \`---\´     `],
-      [`  .---.     `,`  (${E}>${E})     `,` /(   )\\    `,`  \`---\´     `,`   ~ ~      `]
-    ]
-  },
-  turtle: {
-    desc: '第三帧壳纹理变化。',
-    frames: [
-      [`            `,`   _,--._   `,`  ( ${E}  ${E} )  `,` /[______]\\ `,`  \`\`    \`\`  `],
-      [`            `,`   _,--._   `,`  ( ${E}  ${E} )  `,` /[______]\\ `,`   \`\`  \`\`   `],
-      [`            `,`   _,--._   `,`  ( ${E}  ${E} )  `,` /[======]\\ `,`  \`\`    \`\`  `]
-    ]
-  },
-  snail: {
-    desc: '眼柄摇摆。单眼物种。',
-    frames: [
-      [`            `,` ${E}    .--.  `,`  \\  ( @ )  `,`   \\_\`--\´   `,`  ~~~~~~~   `],
-      [`            `,`  ${E}   .--.  `,`  |  ( @ )  `,`   \\_\`--\´   `,`  ~~~~~~~   `],
-      [`            `,` ${E}    .--.  `,`  \\  ( @  ) `,`   \\_\`--\´   `,`   ~~~~~~   `]
-    ]
-  },
-  ghost: {
-    desc: '底部边缘波动。第三帧飘起来。',
-    frames: [
-      [`            `,`   .----.   `,`  / ${E}  ${E} \\  `,`  |      |  `,`  ~\`\`~\`\`~\`~  `],
-      [`            `,`   .----.   `,`  / ${E}  ${E} \\  `,`  |      |  `,`  \`~\`~~\`~\`  `],
-      [`    ~  ~    `,`   .----.   `,`  / ${E}  ${E} \\  `,`  |      |  `,`  ~~\`~~\`~~  `]
-    ]
-  },
-  axolotl: {
-    desc: '鳃向不同方向摆动。',
-    frames: [
-      [`            `,`}~(______)~{`,`}~(${E} .. ${E})~{`,`  ( .--. )  `,`  (_/  \\_)  `],
-      [`            `,`~}(______){~`,`~}(${E} .. ${E}){~`,`  ( .--. )  `,`  (_/  \\_)  `],
-      [`            `,`}~(______)~{`,`}~(${E} .. ${E})~{`,`  (  --  )  `,`  ~_/  \\_~  `]
-    ]
-  },
-  capybara: {
-    desc: '平静。偶尔抽动鼻孔。',
-    frames: [
-      [`            `,`  n______n  `,` ( ${E}    ${E} ) `,` (   oo   ) `,`  \`------\´  `],
-      [`            `,`  n______n  `,` ( ${E}    ${E} ) `,` (   Oo   ) `,`  \`------\´  `],
-      [`    ~  ~    `,`  u______n  `,` ( ${E}    ${E} ) `,` (   oo   ) `,`  \`------\´  `]
-    ]
-  },
-  cactus: {
-    desc: '手臂在帧之间上下移动。',
-    frames: [
-      [`            `,` n  ____  n `,` | |${E}  ${E}| | `,` |_|    |_| `,`   |    |   `],
-      [`            `,`    ____    `,` n |${E}  ${E}| n `,` |_|    |_| `,`   |    |   `],
-      [` n        n `,` |  ____  | `,` | |${E}  ${E}| | `,` |_|    |_| `,`   |    |   `]
-    ]
-  },
-  robot: {
-    desc: '天线闪烁。嘴巴图案变化。',
-    frames: [
-      [`            `,`   .[||].   `,`  [ ${E}  ${E} ]  `,`  [ ==== ]  `,`  \`------\´  `],
-      [`            `,`   .[||].   `,`  [ ${E}  ${E} ]  `,`  [ -==- ]  `,`  \`------\´  `],
-      [`     *      `,`   .[||].   `,`  [ ${E}  ${E} ]  `,`  [ ==== ]  `,`  \`------\´  `]
-    ]
-  },
-  rabbit: {
-    desc: '第二帧耳朵下垂。鼻子抽动。',
-    frames: [
-      [`            `,`   (\\__/)   `,`  ( ${E}  ${E} )  `,` =(  ..  )= `,`  (")__(")  `],
-      [`            `,`   (|__/)   `,`  ( ${E}  ${E} )  `,` =(  ..  )= `,`  (")__(")  `],
-      [`            `,`   (\\__/)   `,`  ( ${E}  ${E} )  `,` =( .  . )= `,`  (")__(")  `]
-    ]
-  },
-  mushroom: {
-    desc: '帽子斑点移动。第三帧散发孢子。',
-    frames: [
-      [`            `,` .-o-OO-o-. `,`(__________)`,`   |${E}  ${E}|   `,`   |____|   `],
-      [`            `,` .-O-oo-O-. `,`(__________)`,`   |${E}  ${E}|   `,`   |____|   `],
-      [`   . o  .   `,` .-o-OO-o-. `,`(__________)`,`   |${E}  ${E}|   `,`   |____|   `]
-    ]
-  },
-  chonk: {
-    desc: '第二帧甩耳朵。第三帧摇尾巴。',
-    frames: [
-      [`            `,`  /\\    /\\  `,` ( ${E}    ${E} ) `,` (   ..   ) `,`  \`------\´  `],
-      [`            `,`  /\\    /|  `,` ( ${E}    ${E} ) `,` (   ..   ) `,`  \`------\´  `],
-      [`            `,`  /\\    /\\  `,` ( ${E}    ${E} ) `,` (   ..   ) `,`  \`------\´~ `]
-    ]
-  }
+  duck: { desc: '最初的伙伴。尾巴微微摇摆。', frames: [
+    [`            `,`    __      `,`  <(${E} )___  `,`   (  ._>   `,`    \`--´    `],
+    [`            `,`    __      `,`  <(${E} )___  `,`   (  ._>   `,`    \`--´~   `],
+    [`            `,`    __      `,`  <(${E} )___  `,`   (  .__>  `,`    \`--´    `]]},
+  goose: { desc: '长脖子，危险的感觉。', frames: [
+    [`            `,`     (${E}>    `,`     ||     `,`   _(__)_   `,`    ^^^^    `],
+    [`            `,`    (${E}>     `,`     ||     `,`   _(__)_   `,`    ^^^^    `],
+    [`            `,`     (${E}>>   `,`     ||     `,`   _(__)_   `,`    ^^^^    `]]},
+  blob: { desc: '会呼吸（膨胀/收缩）。', frames: [
+    [`            `,`   .----.   `,`  ( ${E}  ${E} )  `,`  (      )  `,`   \`----´   `],
+    [`            `,`  .------.  `,` (  ${E}  ${E}  ) `,` (        ) `,`  \`------´  `],
+    [`            `,`    .--.    `,`   (${E}  ${E})   `,`   (    )   `,`    \`--´    `]]},
+  cat: { desc: 'ω 嘴巴。第二帧甩尾巴。', frames: [
+    [`            `,`   /\\_/\\    `,`  ( ${E}   ${E})  `,`  (  ω  )   `,`  (")_(")   `],
+    [`            `,`   /\\_/\\    `,`  ( ${E}   ${E})  `,`  (  ω  )   `,`  (")_(")~  `],
+    [`            `,`   /\\-/\\    `,`  ( ${E}   ${E})  `,`  (  ω  )   `,`  (")_(")   `]]},
+  dragon: { desc: '第三帧冒烟。', frames: [
+    [`            `,`  /^\\  /^\\  `,` <  ${E}  ${E}  > `,` (   ~~   ) `,`  \`-vvvv-´  `],
+    [`            `,`  /^\\  /^\\  `,` <  ${E}  ${E}  > `,` (        ) `,`  \`-vvvv-´  `],
+    [`   ~    ~   `,`  /^\\  /^\\  `,` <  ${E}  ${E}  > `,` (   ~~   ) `,`  \`-vvvv-´  `]]},
+  octopus: { desc: '触手交替。第三帧吐墨汁。', frames: [
+    [`            `,`   .----.   `,`  ( ${E}  ${E} )  `,`  (______)  `,`  /\\/\\/\\/\\  `],
+    [`            `,`   .----.   `,`  ( ${E}  ${E} )  `,`  (______)  `,`  \\/\\/\\/\\/  `],
+    [`     o      `,`   .----.   `,`  ( ${E}  ${E} )  `,`  (______)  `,`  /\\/\\/\\/\\  `]]},
+  owl: { desc: '第三帧眨眼。脚会移动。', frames: [
+    [`            `,`   /\\  /\\   `,`  ((${E})(${E}))  `,`  (  ><  )  `,`   \`----´   `],
+    [`            `,`   /\\  /\\   `,`  ((${E})(${E}))  `,`  (  ><  )  `,`   .----.   `],
+    [`            `,`   /\\  /\\   `,`  ((${E})(-))  `,`  (  ><  )  `,`   \`----´   `]]},
+  penguin: { desc: '鳍交替。第三帧跳起来。', frames: [
+    [`            `,`  .---.     `,`  (${E}>${E})     `,` /(   )\\    `,`  \`---´     `],
+    [`            `,`  .---.     `,`  (${E}>${E})     `,` |(   )|    `,`  \`---´     `],
+    [`  .---.     `,`  (${E}>${E})     `,` /(   )\\    `,`  \`---´     `,`   ~ ~      `]]},
+  turtle: { desc: '第三帧壳纹理变化。', frames: [
+    [`            `,`   _,--._   `,`  ( ${E}  ${E} )  `,` /[______]\\ `,`  \`\`    \`\`  `],
+    [`            `,`   _,--._   `,`  ( ${E}  ${E} )  `,` /[______]\\ `,`   \`\`  \`\`   `],
+    [`            `,`   _,--._   `,`  ( ${E}  ${E} )  `,` /[======]\\ `,`  \`\`    \`\`  `]]},
+  snail: { desc: '眼柄摇摆。单眼物种。', frames: [
+    [`            `,` ${E}    .--.  `,`  \\  ( @ )  `,`   \\_\`--´   `,`  ~~~~~~~   `],
+    [`            `,`  ${E}   .--.  `,`  |  ( @ )  `,`   \\_\`--´   `,`  ~~~~~~~   `],
+    [`            `,` ${E}    .--.  `,`  \\  ( @  ) `,`   \\_\`--´   `,`   ~~~~~~   `]]},
+  ghost: { desc: '底部边缘波动。第三帧飘起来。', frames: [
+    [`            `,`   .----.   `,`  / ${E}  ${E} \\  `,`  |      |  `,`  ~\`\`~\`\`~\`~  `],
+    [`            `,`   .----.   `,`  / ${E}  ${E} \\  `,`  |      |  `,`  \`~\`~~\`~\`  `],
+    [`    ~  ~    `,`   .----.   `,`  / ${E}  ${E} \\  `,`  |      |  `,`  ~~\`~~\`~~  `]]},
+  axolotl: { desc: '鳃向不同方向摆动。', frames: [
+    [`            `,`}~(______)~{`,`}~(${E} .. ${E})~{`,`  ( .--. )  `,`  (_/  \\_)  `],
+    [`            `,`~}(______){~`,`~}(${E} .. ${E}){~`,`  ( .--. )  `,`  (_/  \\_)  `],
+    [`            `,`}~(______)~{`,`}~(${E} .. ${E})~{`,`  (  --  )  `,`  ~_/  \\_~  `]]},
+  capybara: { desc: '平静。偶尔抽动鼻孔。', frames: [
+    [`            `,`  n______n  `,` ( ${E}    ${E} ) `,` (   oo   ) `,`  \`------´  `],
+    [`            `,`  n______n  `,` ( ${E}    ${E} ) `,` (   Oo   ) `,`  \`------´  `],
+    [`    ~  ~    `,`  u______n  `,` ( ${E}    ${E} ) `,` (   oo   ) `,`  \`------´  `]]},
+  cactus: { desc: '手臂在帧之间上下移动。', frames: [
+    [`            `,` n  ____  n `,` | |${E}  ${E}| | `,` |_|    |_| `,`   |    |   `],
+    [`            `,`    ____    `,` n |${E}  ${E}| n `,` |_|    |_| `,`   |    |   `],
+    [` n        n `,` |  ____  | `,` | |${E}  ${E}| | `,` |_|    |_| `,`   |    |   `]]},
+  robot: { desc: '天线闪烁。嘴巴图案变化。', frames: [
+    [`            `,`   .[||].   `,`  [ ${E}  ${E} ]  `,`  [ ==== ]  `,`  \`------´  `],
+    [`            `,`   .[||].   `,`  [ ${E}  ${E} ]  `,`  [ -==- ]  `,`  \`------´  `],
+    [`     *      `,`   .[||].   `,`  [ ${E}  ${E} ]  `,`  [ ==== ]  `,`  \`------´  `]]},
+  rabbit: { desc: '第二帧耳朵下垂。鼻子抽动。', frames: [
+    [`            `,`   (\\__/)   `,`  ( ${E}  ${E} )  `,` =(  ..  )= `,`  (")__(")  `],
+    [`            `,`   (|__/)   `,`  ( ${E}  ${E} )  `,` =(  ..  )= `,`  (")__(")  `],
+    [`            `,`   (\\__/)   `,`  ( ${E}  ${E} )  `,` =( .  . )= `,`  (")__(")  `]]},
+  mushroom: { desc: '帽子斑点移动。第三帧散孢子。', frames: [
+    [`            `,` .-o-OO-o-. `,`(__________)`,`   |${E}  ${E}|   `,`   |____|   `],
+    [`            `,` .-O-oo-O-. `,`(__________)`,`   |${E}  ${E}|   `,`   |____|   `],
+    [`   . o  .   `,` .-o-OO-o-. `,`(__________)`,`   |${E}  ${E}|   `,`   |____|   `]]},
+  chonk: { desc: '第二帧甩耳朵。第三帧摇尾巴。', frames: [
+    [`            `,`  /\\    /\\  `,` ( ${E}    ${E} ) `,` (   ..   ) `,`  \`------´  `],
+    [`            `,`  /\\    /|  `,` ( ${E}    ${E} ) `,` (   ..   ) `,`  \`------´  `],
+    [`            `,`  /\\    /\\  `,` ( ${E}    ${E} ) `,` (   ..   ) `,`  \`------´~ `]]}
 };
 
 const HATS = {
-  none:      { art: '', desc: '普通稀有度固定为这个。' },
-  crown:     { art: '   \\^^^/    ', desc: '\\^^^/ — 王者风范。' },
-  tophat:    { art: '   [___]    ', desc: '[___] — 经典优雅。' },
-  propeller: { art: '    -+-     ', desc: '-+- — 俏皮。' },
-  halo:      { art: '   (   )    ', desc: '(   ) — 天使光环。' },
-  wizard:    { art: '    /^\\     ', desc: '/^\\ — 魔法。' },
-  beanie:    { art: '   (___)    ', desc: '(___) — 温暖。' },
-  tinyduck:  { art: '    ,>      ', desc: ',> — 头上蹲着一只鸭子。' }
+  none:      { art: '', desc: '普通稀有度固定为此。' },
+  crown:     { art: '   \\^^^/    ', desc: '王者风范。' },
+  tophat:    { art: '   [___]    ', desc: '经典优雅。' },
+  propeller: { art: '    -+-     ', desc: '俏皮。' },
+  halo:      { art: '   (   )    ', desc: '天使光环。' },
+  wizard:    { art: '    /^\\     ', desc: '魔法。' },
+  beanie:    { art: '   (___)    ', desc: '温暖。' },
+  tinyduck:  { art: '    ,>      ', desc: '头上蹲着一只鸭子。' }
 };
 
-const EYES_DATA = [
-  { char: '·', desc: '默认。简约，平静。' },
-  { char: '✦', desc: '闪亮。兴奋。' },
-  { char: '×', desc: '晕眩或调皮。' },
-  { char: '◉', desc: '大眼睛。警觉。' },
-  { char: '@', desc: '数字化。机械感。' },
-  { char: '°', desc: '惊讶。空洞凝视。' }
+const EYES = [
+  { c: '·', desc: '默认。简约，平静。' },
+  { c: '✦', desc: '闪亮。兴奋。' },
+  { c: '×', desc: '晕眩或调皮。' },
+  { c: '◉', desc: '大眼睛。警觉。' },
+  { c: '@', desc: '数字化。机械感。' },
+  { c: '°', desc: '惊讶。空洞凝视。' }
 ];
 
-const RARITY_DATA = [
-  { name: 'common', stars: '★', label: '普通', floor: 5, peak: '55–84', color: '#9aa5ce' },
-  { name: 'uncommon', stars: '★★', label: '非凡', floor: 15, peak: '65–94', color: '#73daca' },
-  { name: 'rare', stars: '★★★', label: '稀有', floor: 25, peak: '75–100', color: '#7dcfff' },
-  { name: 'epic', stars: '★★★★', label: '史诗', floor: 35, peak: '85–100', color: '#bb9af7' },
-  { name: 'legendary', stars: '★★★★★', label: '传奇', floor: 50, peak: '100', color: '#e0af68' }
+const RARITIES = [
+  { key: 'common', stars: '★', label: '普通', floor: 5, color: '#8b949e', weight: '60%' },
+  { key: 'uncommon', stars: '★★', label: '非凡', floor: 15, color: '#3fb950', weight: '25%' },
+  { key: 'rare', stars: '★★★', label: '稀有', floor: 25, color: '#58a6ff', weight: '10%' },
+  { key: 'epic', stars: '★★★★', label: '史诗', floor: 35, color: '#bc8cff', weight: '4%' },
+  { key: 'legendary', stars: '★★★★★', label: '传奇', floor: 50, color: '#f0883e', weight: '1%' }
 ];
 
-const STAT_NAMES = ['DEBUGGING', 'PATIENCE', 'CHAOS', 'WISDOM', 'SNARK'];
+const STATS = ['DEBUGGING','PATIENCE','CHAOS','WISDOM','SNARK'];
 
-function renderSprite(species, eye, hat, frame = 0) {
-  const s = SPRITES[species].frames[frame].map(line => line.replaceAll('{E}', eye));
-  if (hat !== 'none' && HATS[hat] && HATS[hat].art) {
-    // Replace first blank line with hat
-    if (!s[0].trim()) s[0] = HATS[hat].art;
-  }
+function sprite(name, eye, hat, f=0) {
+  const s = SPRITES[name].frames[f].map(l => l.replaceAll('{E}', eye));
+  if (hat !== 'none' && HATS[hat]?.art) { if (!s[0].trim()) s[0] = HATS[hat].art; }
   return s.join('\n');
 }
 
-// Build species section
-const speciesSection = document.getElementById('section-species');
-let speciesHTML = '<h2>物种 (18种)</h2><p style="color:var(--text2);margin-bottom:1rem;font-size:0.85rem;">每种有独特的 ASCII 艺术和 3 帧动画。纯外观属性，不影响属性值。</p><div class="grid">';
-for (const [name, data] of Object.entries(SPRITES)) {
-  const sprite = renderSprite(name, '·', 'none', 0);
-  speciesHTML += `<div class="card">
-    <div class="card-label">Species</div>
-    <div class="card-name">${name}</div>
-    <div class="card-desc">${data.desc}</div>
-    <pre>${sprite}</pre>
+function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// Species
+const sg = document.getElementById('species-grid');
+for (const [n, d] of Object.entries(SPRITES)) {
+  sg.innerHTML += `<div class="sp-card" onclick="this.classList.toggle('selected')">
+    <div class="sp-name">${n}</div>
+    <div class="sp-desc">${d.desc}</div>
+    <div class="sp-sprite">
+      <pre class="frame">${esc(sprite(n,'·','none',0))}</pre>
+      <pre class="frame hidden">${esc(sprite(n,'·','none',1))}</pre>
+      <pre class="frame hidden">${esc(sprite(n,'·','none',2))}</pre>
+    </div>
   </div>`;
 }
-speciesHTML += '</div>';
-speciesSection.innerHTML = speciesHTML;
+// Animate species sprites
+setInterval(() => {
+  document.querySelectorAll('.sp-sprite').forEach(el => {
+    const frames = el.querySelectorAll('.frame');
+    const cur = [...frames].findIndex(f => !f.classList.contains('hidden'));
+    frames.forEach(f => f.classList.add('hidden'));
+    frames[(cur + 1) % frames.length].classList.remove('hidden');
+  });
+}, 1200);
 
-// Build eyes section
-const eyesSection = document.getElementById('section-eyes');
-let eyesHTML = '<h2>眼睛 (6种)</h2><p style="color:var(--text2);margin-bottom:1rem;font-size:0.85rem;">通过 {E} 占位符替换到精灵模板中。以鸭子为例展示。</p><div class="grid">';
-for (const e of EYES_DATA) {
-  const sprite = renderSprite('duck', e.char, 'none', 0);
-  eyesHTML += `<div class="card">
-    <div class="card-label">Eye Style</div>
-    <div class="card-name">${e.char}</div>
-    <div class="card-desc">${e.desc}</div>
-    <pre>${sprite}</pre>
+// Eyes
+const er = document.getElementById('eyes-row');
+for (const e of EYES) {
+  er.innerHTML += `<div class="eye-card" onclick="this.classList.toggle('selected')">
+    <span class="eye-char">${e.c}</span>
+    <div class="eye-desc">${e.desc}</div>
+    <div class="eye-sprite"><pre>${esc(sprite('duck',e.c,'none',0))}</pre></div>
   </div>`;
 }
-eyesHTML += '</div>';
-eyesSection.innerHTML = eyesHTML;
 
-// Build hats section
-const hatsSection = document.getElementById('section-hats');
-let hatsHTML = '<h2>帽子 (8种)</h2><p style="color:var(--text2);margin-bottom:1rem;font-size:0.85rem;">普通稀有度固定为 none。其他稀有度从全套中随机。以猫+✦为例展示。</p><div class="grid">';
-for (const [name, data] of Object.entries(HATS)) {
-  const sprite = renderSprite('cat', '✦', name, 0);
-  hatsHTML += `<div class="card">
-    <div class="card-label">Hat${name === 'none' ? ' — common only' : ''}</div>
-    <div class="card-name">${name}</div>
-    <div class="card-desc">${data.desc}</div>
-    <pre>${sprite}</pre>
+// Hats
+const hr = document.getElementById('hats-row');
+for (const [n, d] of Object.entries(HATS)) {
+  const s = sprite('cat','✦',n,0);
+  hr.innerHTML += `<div class="hat-card" onclick="this.classList.toggle('selected')">
+    <div class="hat-name">${n}</div>
+    <div class="hat-desc">${d.desc}</div>
+    <div class="hat-sprite"><pre>${esc(s)}</pre></div>
   </div>`;
 }
-hatsHTML += '</div>';
-hatsSection.innerHTML = hatsHTML;
 
-// Build rarity section
-const raritySection = document.getElementById('section-rarity');
-let rarityHTML = '<h2>稀有度 (5种)</h2><p style="color:var(--text2);margin-bottom:1rem;font-size:0.85rem;">稀有度决定属性下限和是否能有帽子。以猫+✦+crown为例。</p><div class="grid">';
-for (const r of RARITY_DATA) {
-  const sprite = renderSprite('cat', '✦', 'crown', 0);
-  rarityHTML += `<div class="card rarity-${r.name}">
-    <div class="card-label">Rarity</div>
-    <div class="card-name" style="color:${r.color}">${r.stars} ${r.label}</div>
-    <div class="card-desc">属性下限: ${r.floor} | 最高属性: ${r.peak}${r.name === 'common' ? ' | 无帽子' : ' | 可有帽子'}</div>
-    <pre style="color:${r.color}">${sprite}</pre>
+// Rarity
+const rr = document.getElementById('rarity-row');
+for (const r of RARITIES) {
+  const s = sprite('cat','✦','crown',0);
+  rr.innerHTML += `<div class="rar-card rar-${r.key}">
+    <div class="rar-stars">${r.stars}</div>
+    <div class="rar-label">${r.label}</div>
+    <div class="rar-info">下限 ${r.floor} · 概率 ${r.weight}${r.key==='common'?' · 无帽子':''}</div>
+    <div class="rar-sprite"><pre>${esc(s)}</pre></div>
   </div>`;
 }
-rarityHTML += '</div>';
 
-rarityHTML += '<h2>属性 (5项)</h2><table class="stats-table"><tr><th>属性</th><th>说明</th><th>公式</th></tr>';
-rarityHTML += '<tr><td>DEBUGGING</td><td>调试能力</td><td>所有稀有度公式相同</td></tr>';
-rarityHTML += '<tr><td>PATIENCE</td><td>耐心</td><td>所有稀有度公式相同</td></tr>';
-rarityHTML += '<tr><td>CHAOS</td><td>混乱度</td><td>所有稀有度公式相同</td></tr>';
-rarityHTML += '<tr><td>WISDOM</td><td>智慧</td><td>所有稀有度公式相同</td></tr>';
-rarityHTML += '<tr><td>SNARK</td><td>毒舌</td><td>所有稀有度公式相同</td></tr></table>';
-rarityHTML += '<p style="color:var(--text2);font-size:0.85rem;">每个宠物有一个最高属性和一个最低属性。最高: floor+50~79，最低: floor-10~+4，其他: floor+0~39。属性影响 LLM 生成的名字和性格。</p>';
-raritySection.innerHTML = rarityHTML;
+// Stats
+const sb = document.getElementById('stats-box');
+let sh = '<div class="stats-title">属性说明</div>';
+const statDesc = {
+  DEBUGGING: { desc: '调试能力', color: '#58a6ff' },
+  PATIENCE: { desc: '耐心', color: '#3fb950' },
+  CHAOS: { desc: '混乱度', color: '#f85149' },
+  WISDOM: { desc: '智慧', color: '#bc8cff' },
+  SNARK: { desc: '毒舌', color: '#f0883e' }
+};
+for (const s of STATS) {
+  const v = Math.floor(Math.random()*50)+50;
+  sh += `<div class="stat-row">
+    <div class="stat-name">${s}</div>
+    <div class="stat-bar-bg"><div class="stat-bar" style="width:${v}%;background:${statDesc[s].color}"></div></div>
+    <span style="font-size:0.65rem;color:var(--text3);width:30px;text-align:right">${s.slice(0,3)}</span>
+  </div>`;
+}
+sh += '<div style="font-size:0.68rem;color:var(--text3);margin-top:0.8rem">每个宠物有 1 个最高属性 (floor+50~79) 和 1 个最低属性 (floor-10~+4)。属性影响 LLM 生成的名字和性格。</div>';
+sb.innerHTML = sh;
 
 // Builder
-const bSpecies = document.getElementById('b-species');
-const bEyes = document.getElementById('b-eyes');
-const bHats = document.getElementById('b-hats');
-const bPreview = document.getElementById('b-preview');
+const bSp = document.getElementById('b-sp');
+const bEy = document.getElementById('b-ey');
+const bHt = document.getElementById('b-ht');
+const bOut = document.getElementById('b-out');
+const bTags = document.getElementById('b-tags');
 
-for (const name of Object.keys(SPRITES)) {
-  bSpecies.innerHTML += `<option value="${name}">${name}</option>`;
-}
-for (const e of EYES_DATA) {
-  bEyes.innerHTML += `<option value="${e.char}">${e.char} — ${e.desc}</option>`;
-}
-for (const [name, data] of Object.entries(HATS)) {
-  bHats.innerHTML += `<option value="${name}">${name} — ${data.desc}</option>`;
-}
+for (const n of Object.keys(SPRITES)) bSp.innerHTML += `<option value="${n}">${n}</option>`;
+for (const e of EYES) bEy.innerHTML += `<option value="${e.c}">${e.c} — ${e.desc}</option>`;
+for (const [n, d] of Object.entries(HATS)) bHt.innerHTML += `<option value="${n}">${n}</option>`;
 
-function updatePreview() {
-  const sp = bSpecies.value;
-  const ey = bEyes.value;
-  const ht = bHats.value;
-  bPreview.textContent = renderSprite(sp, ey, ht, 0);
+function updateBuilder() {
+  bOut.textContent = sprite(bSp.value, bEy.value, bHt.value, 0);
+  bTags.innerHTML = `
+    <span class="builder-tag">${bSp.value}</span>
+    <span class="builder-tag">${bEy.value}</span>
+    <span class="builder-tag">${bHt.value}</span>
+  `;
 }
-bSpecies.addEventListener('change', updatePreview);
-bEyes.addEventListener('change', updatePreview);
-bHats.addEventListener('change', updatePreview);
-updatePreview();
+bSp.addEventListener('change', updateBuilder);
+bEy.addEventListener('change', updateBuilder);
+bHt.addEventListener('change', updateBuilder);
+updateBuilder();
 
-// Tabs
-document.querySelectorAll('.tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-    tab.classList.add('active');
-    document.getElementById('section-' + tab.dataset.section).classList.add('active');
+// Animate builder preview
+let bf = 0;
+setInterval(() => {
+  bf = (bf + 1) % 3;
+  bOut.textContent = sprite(bSp.value, bEy.value, bHt.value, bf);
+}, 1000);
+
+// Nav
+document.querySelectorAll('.nav-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
   });
 });
 </script>
